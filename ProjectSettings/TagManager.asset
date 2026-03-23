@@ -5,6 +5,10 @@ TagManager:
   serializedVersion: 3
   tags:
   - Anchor
+  - KeyPart
+  - GazeMessage
+  - Key
+  - Handle
   layers:
   - Default
   - TransparentFX
