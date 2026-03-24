@@ -8,10 +8,10 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 55daccc09a3b69647bbab145b54a3ab3
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/Lab/LabRoom.unity
     guid: 22a858ac55ac21c469004f6b01eb106f
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Lab/StorageRoom.unity
     guid: 4e92c910837446d4d89738d5a7474a53
   m_configObjects:

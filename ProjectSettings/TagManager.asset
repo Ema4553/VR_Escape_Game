@@ -9,6 +9,7 @@ TagManager:
   - GazeMessage
   - Key
   - Handle
+  - Portal
   layers:
   - Default
   - TransparentFX
