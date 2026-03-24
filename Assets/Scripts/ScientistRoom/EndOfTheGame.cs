@@ -10,6 +10,10 @@ public class EndOfTheGame : MonoBehaviour
     public Color[] colors;
     private static bool isPortalActive = false;
 
+    [Header("Audio")]
+    public AudioSource audioSource;
+    public AudioClip successSound;
+
     void Start()
     {
         if (portalRenderer != null && colors.Length >= 2)
@@ -35,6 +39,12 @@ public class EndOfTheGame : MonoBehaviour
     void OpenPortal()
     {
         isPortalActive = true;
+        
+        if (audioSource != null && successSound != null)
+        {
+            audioSource.PlayOneShot(successSound);
+        }
+
         portalRenderer.material.color = colors[1];
         Debug.Log("Le portail est ACTIF");
     }

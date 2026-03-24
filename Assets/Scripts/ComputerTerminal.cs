@@ -13,6 +13,13 @@ public class ComputerTerminal : MonoBehaviour
     [Header("État de la Sortie")]
     public bool doorOpen = false; // La variable demandée
 
+    [Header("Porte")]
+    public OpenDoor porteALiberer; // La porte qui doit s'ouvrir
+
+    [Header("Audio")]
+    public AudioSource audioSource;
+    public AudioClip beepSound;
+
     private string inputActuel = "";
     private bool estResolu = false;
 
@@ -28,6 +35,13 @@ public class ComputerTerminal : MonoBehaviour
     public void ToucheSpeciale(string lettre)
     {
         if (estResolu) return;
+
+        // On joue le petit bip sonore
+        if (audioSource != null && beepSound != null)
+        {
+            audioSource.PlayOneShot(beepSound);
+        }
+
         inputActuel += lettre;
         MettreAJourEcran();
     }
@@ -53,13 +67,21 @@ public class ComputerTerminal : MonoBehaviour
     {
         estResolu = true;
         doorOpen = true; // On ouvre la porte !
+        
+        // On déverrouille et on ouvre la porte physiquement
+        if (porteALiberer != null)
+        {
+            porteALiberer.isLocked = false;
+            porteALiberer.ToggleDoor();
+        }
+
         ecranTexte.text = "<color=green>ACCÈS AUTORISÉ</color>";
-        Debug.Log("Code correct ! doorOpen est maintenant TRUE.");
+        Debug.Log("Code correct ! doorOpen est maintenant TRUE et la porte s'ouvre.");
     }
 
     private void Echec()
     {
-        ecranTexte.text = prefixeMessage + inputActuel + "\n<color=red>CODE ERRONÉ</color>";
+        ecranTexte.text = "<color=red>CODE ERRONÉ</color>";
         // On laisse le message d'erreur 1.5s puis on efface tout
         Invoke("EffacerInput", 1.5f);
     }

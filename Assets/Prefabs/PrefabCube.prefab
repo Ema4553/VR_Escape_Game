@@ -153,3 +153,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 022dede55ab9e058d918c95002a681de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShootableCube
+  destructionSound: {fileID: 8300000, guid: 970bf0e51e6dd620d8969e584943fb92, type: 3}

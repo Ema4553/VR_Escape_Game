@@ -4,9 +4,13 @@ using UnityEngine.InputSystem;
 public class VRBlaster : MonoBehaviour
 {
     [Header("Tir (Physique)")]
-    public GameObject projectilePrefab; // L'objet 3D (le rayon laser) qui va traverser l'espace
-    public Transform firePoint;         // Objet vide au bout du canon du Blaster
+    public GameObject projectilePrefab; 
+    public Transform firePoint;         
     public ParticleSystem muzzleFlash;
+
+    [Header("Audio")]
+    public AudioSource audioSource;
+    public AudioClip shootSound;
 
     // Permet de tester sur l'ordinateur sans le casque VR (Touche Espace)
     void Update()
@@ -21,6 +25,12 @@ public class VRBlaster : MonoBehaviour
     // XR Grab Interactable -> Activated (Quand on appuie sur la gâchette VR)
     public void Fire()
     {
+        // 0. Son de tir
+        if (audioSource != null && shootSound != null)
+        {
+            audioSource.PlayOneShot(shootSound);
+        }
+
         // 1. Flash de l'arme (le petit effet visuel du canon)
         if (muzzleFlash != null)
         {

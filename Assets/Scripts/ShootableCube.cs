@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class ShootableCube : MonoBehaviour
 {
+    public AudioClip destructionSound;
     private StorageRoomManager manager;
 
     void Start()
@@ -13,6 +14,12 @@ public class ShootableCube : MonoBehaviour
     // Appelé par le tir du Blaster
     public void Hit()
     {
+        // Joue le son de destruction à l'emplacement précis du cube !
+        if (destructionSound != null)
+        {
+            AudioSource.PlayClipAtPoint(destructionSound, transform.position);
+        }
+
         if (manager != null)
         {
             manager.OnCubeDestroyed(); // On prévient de la destruction de l'objectif

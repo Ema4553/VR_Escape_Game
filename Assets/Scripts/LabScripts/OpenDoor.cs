@@ -20,6 +20,10 @@ public class OpenDoor : MonoBehaviour
     public Renderer ledRenderer;
     public Color[] colors;
 
+    [Header("Réglages Audio")]
+    public AudioSource audioSource;
+    public AudioClip doorSound;
+
     private Vector3 closedPos;
     private Vector3 targetPos;
     private bool isOpen = false;
@@ -102,7 +106,13 @@ public class OpenDoor : MonoBehaviour
     public void ToggleDoor()
     {
         isOpen = !isOpen;
-        // TODO : Ajouter un son d'ouverture / fermeture de porte (type sf)
+        
+        // On joue le son de porte si tout est configuré
+        if (audioSource != null && doorSound != null)
+        {
+            audioSource.PlayOneShot(doorSound);
+        }
+
         targetPos = isOpen ? closedPos + openOffset : closedPos;
     }
 

@@ -1,6 +1,5 @@
 using UnityEngine;
-using UnityEngine.SceneManagement; // Requis pour recharger la scène
-using TMPro;
+using UnityEngine.SceneManagement; 
 
 public class MonsterRoomTrigger : MonoBehaviour
 {
@@ -8,7 +7,13 @@ public class MonsterRoomTrigger : MonoBehaviour
     public Animator monsterAnimator; 
     public GameObject gameOverScreen; 
     public string animationTriggerName = "Attack"; 
-    public float delaisAvantReload = 3f; // Temps à attendre avant de recommencer
+    
+    [Header("Réglages")]
+    public float delaisAvantReload = 2f; // Réglé sur 2 secondes pour plus de vitesse !
+
+    [Header("Audio")]
+    public AudioSource audioSource;
+    public AudioClip attackSound;
 
     private bool triggered = false;
 
@@ -20,36 +25,47 @@ public class MonsterRoomTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        // On détecte la tête ou le corps du joueur
         if (!triggered && (other.CompareTag("Player") || other.GetComponentInChildren<Camera>() != null))
         {
             triggered = true;
+            Debug.Log("<color=orange>🏁 TRIGGER DÉTECTÉ !</color>");
             DeclencherGameOver();
         }
     }
 
     private void DeclencherGameOver()
     {
-        Debug.Log("GAME OVER : Le monstre s'est réveillé !");
+        Debug.Log("<color=yellow>💀 DEBUT DU GAME OVER...</color>");
 
+        // 1. Son
+        if (audioSource != null && attackSound != null)
+        {
+            audioSource.PlayOneShot(attackSound);
+        }
+
+        // 2. Animation
         if (monsterAnimator != null)
         {
             monsterAnimator.enabled = true;
             monsterAnimator.SetTrigger(animationTriggerName);
         }
 
+        // 3. UI
         if (gameOverScreen != null)
         {
             gameOverScreen.SetActive(true);
         }
 
-        // On lance le compte à rebours pour recommencer le jeu !
+        // 4. Lancement du délais
+        Debug.Log("<color=orange>⏳ Délai de 2s avant le reload lancé.</color>");
         Invoke("RechargerLaPartie", delaisAvantReload);
     }
 
     private void RechargerLaPartie()
     {
-        // On récupère le nom de la scène actuelle et on la relance
-        string nomScene = SceneManager.GetActiveScene().name;
-        SceneManager.LoadScene(nomScene);
+        Debug.Log("<color=red>🔄 RELOAD lancé !</color>");
+        // Version ultra-robuste : recharge la scène actuelle par son index
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }
