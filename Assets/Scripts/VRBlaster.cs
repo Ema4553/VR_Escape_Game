@@ -1,39 +1,61 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class VRBlaster : MonoBehaviour
 {
-    [Header("Tir")]
-    public Transform firePoint;     // Objet vide au bout du canon du Blaster
-    public float weaponRange = 30f; // Distance de tir maximale du Raycast
+    [Header("Tir (Physique)")]
+    public GameObject projectilePrefab; // L'objet 3D (le rayon laser) qui va traverser l'espace
+    public Transform firePoint;         // Objet vide au bout du canon du Blaster
     public ParticleSystem muzzleFlash;
+
+    // Permet de tester sur l'ordinateur sans le casque VR (Touche Espace)
+    void Update()
+    {
+        if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
+        {
+            Fire();
+        }
+    }
 
     // Cette fonction devra être liée à l'évènement :
     // XR Grab Interactable -> Activated (Quand on appuie sur la gâchette VR)
     public void Fire()
     {
-        // 1. Son ou flash basique pour le tir
+        // 1. Flash de l'arme (le petit effet visuel du canon)
         if (muzzleFlash != null)
         {
             muzzleFlash.Play();
         }
 
-        // 2. Traçage du tir (laser)
-        if (Physics.Raycast(firePoint.position, firePoint.forward, out RaycastHit hit, weaponRange))
+        // 2. Création du véritable Laser physique qui voyage dans l'espace
+        if (projectilePrefab != null && firePoint != null)
         {
-            // Vérification visuelle
-            Debug.Log("Le tir a touché : " + hit.transform.name);
+            // Correction : une Capsule par défaut dans Unity est verticale (Axe Y).
+            // On la tourne de 90° sur l'axe X pour la coucher (Axe Z) dans le sens du canon.
+            Quaternion correctionRotation = firePoint.rotation * Quaternion.Euler(90f, 0f, 0f);
+            
+            GameObject nouveauLaser = Instantiate(projectilePrefab, firePoint.position, correctionRotation);
+            
+            // 1. Corrige le problème du "tir qui rentre dans l'arme" visuellement
+            nouveauLaser.transform.position += firePoint.forward * (nouveauLaser.transform.localScale.y / 2f);
 
-            // 3. Est-ce que la cible qui vient d'être percutée gère les tirs (Cube) ?
-            ShootableCube target = hit.collider.GetComponent<ShootableCube>();
-            if (target != null)
+            // 2. CORRECTION CRUCIALE : Empêcher le laser de percuter le bouclier invisible du pistolet !
+            Collider[] gunColliders = GetComponentsInChildren<Collider>();
+            Collider[] laserColliders = nouveauLaser.GetComponentsInChildren<Collider>();
+            
+            foreach(var gunCol in gunColliders)
             {
-                // Message "J'ai été touché !" envoyé au cube
-                target.Hit();
+                foreach(var laserCol in laserColliders)
+                {
+                    Physics.IgnoreCollision(gunCol, laserCol);
+                }
             }
+
+            Debug.Log("TIR VRBLASTER: Le laser a été propulsé et ignore désormais le pistolet !");
         }
         else
         {
-            Debug.Log("Le tir s'est perdu dans le vide.");
+            Debug.LogWarning("VRBlaster ERREUR: Il te manque le 'Projectile Prefab' OU le 'Fire point' dans l'inspector !");
         }
     }
 }

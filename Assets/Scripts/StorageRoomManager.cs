@@ -7,8 +7,11 @@ public class StorageRoomManager : MonoBehaviour
     public Transform caseObject; // L'objet 'Case' dans le mur
 
     [Header("Animation du Case")]
-    public Vector3 caseOpenPositionOffset = new Vector3(0, 0, 0.5f); // De combien il doit sortir (modifier le Z en fonction de ton mur)
+    public Vector3 caseOpenPositionOffset = new Vector3(0, 0, 0.5f); // De combien il doit sortir
     public float openSpeed = 2f; // Vitesse d'ouverture
+
+    [Header("Objet à Libérer")]
+    public UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable poigneeVR; // La poignée à attraper
 
     private int cubesDestroyed = 0;
     private bool shouldOpenCase = false;
@@ -19,25 +22,27 @@ public class StorageRoomManager : MonoBehaviour
     {
         if (caseObject != null)
         {
-            // On mémorise la position de base et on calcule la position d'ouverture (sur son axe local)
             initialCasePosition = caseObject.localPosition;
             targetCasePosition = initialCasePosition + caseOpenPositionOffset;
+        }
+
+        // On bloque la saisie de la poignée au démarrage du jeu
+        if (poigneeVR != null)
+        {
+            poigneeVR.enabled = false;
         }
     }
 
     void Update()
     {
-        // Animation douce d'ouverture du 'Case'
         if (shouldOpenCase && caseObject != null)
         {
             caseObject.localPosition = Vector3.Lerp(caseObject.localPosition, targetCasePosition, Time.deltaTime * openSpeed);
         }
     }
 
-    // Appelé quand le joueur prend le blaster (via l'event Select Entered de XR)
     public void OnBlasterGrabbed()
     {
-        // Debug pour vérifier
         Debug.Log("Blaster saisi ! Début de l'éjection des cubes.");
         if (spawner != null)
         {
@@ -45,7 +50,6 @@ public class StorageRoomManager : MonoBehaviour
         }
     }
 
-    // Appelé par chaque cube quand il est touché par un tir
     public void OnCubeDestroyed()
     {
         cubesDestroyed++;
@@ -58,7 +62,13 @@ public class StorageRoomManager : MonoBehaviour
             
             if (spawner != null)
             {
-                spawner.StopSpawning(); // On arrête d'éjecter des cubes
+                spawner.StopSpawning();
+            }
+
+            // On déverrouille magiquement la poignée pour que la main VR puisse l'attraper !
+            if (poigneeVR != null)
+            {
+                poigneeVR.enabled = true;
             }
         }
     }
