@@ -4,84 +4,84 @@ using TMPro;
 public class ComputerTerminal : MonoBehaviour
 {
     [Header("Configuration de l'Écran")]
-    [Tooltip("Glisser l'élément TextMeshPro de l'écran ici.")]
     public TextMeshProUGUI ecranTexte; 
     
     [Header("Paramètres de l'Enigme")]
     public string prefixeMessage = "e = ";
     public string reponseAttendue = "mc2";
     
+    [Header("État de la Sortie")]
+    public bool doorOpen = false; // La variable demandée
+
     private string inputActuel = "";
     private bool estResolu = false;
 
     void Start()
     {
+        doorOpen = false;
         MettreAJourEcran();
     }
 
-    // Cette fonction sera appelée par les boutons (lettres/chiffres)
-    public void AjouterLettre(string lettre)
+    /// <summary>
+    /// Appelé uniquement par les touches 'm', 'c' et '2'
+    /// </summary>
+    public void ToucheSpeciale(string lettre)
+    {
+        if (estResolu) return;
+        inputActuel += lettre;
+        MettreAJourEcran();
+    }
+
+    /// <summary>
+    /// Appelé par le bouton 'STOP' pour valider
+    /// </summary>
+    public void ValiderReponse()
     {
         if (estResolu) return;
 
-        inputActuel += lettre;
-        MettreAJourEcran();
-        VerifierReponse();
+        if (inputActuel.ToLower() == reponseAttendue.ToLower())
+        {
+            Reussite();
+        }
+        else
+        {
+            Echec();
+        }
     }
 
-    // Permet d'effacer en cas d'erreur ou d'annulation
+    private void Reussite()
+    {
+        estResolu = true;
+        doorOpen = true; // On ouvre la porte !
+        ecranTexte.text = "<color=green>ACCÈS AUTORISÉ</color>";
+        Debug.Log("Code correct ! doorOpen est maintenant TRUE.");
+    }
+
+    private void Echec()
+    {
+        ecranTexte.text = prefixeMessage + inputActuel + "\n<color=red>CODE ERRONÉ</color>";
+        // On laisse le message d'erreur 1.5s puis on efface tout
+        Invoke("EffacerInput", 1.5f);
+    }
+
     public void EffacerInput()
     {
         if (estResolu) return;
-        
         inputActuel = "";
         MettreAJourEcran();
     }
 
-    // Affiche le texte sur l'écran et gère l'interface
     private void MettreAJourEcran()
     {
-        if (estResolu)
+        if (estResolu) return;
+
+        if (string.IsNullOrEmpty(inputActuel))
         {
-            ecranTexte.text = prefixeMessage + inputActuel + "\n<color=green>ACCES AUTORISE</color>";
+            ecranTexte.text = prefixeMessage + "?";
         }
         else
         {
-            if (string.IsNullOrEmpty(inputActuel))
-            {
-                ecranTexte.text = prefixeMessage + "?";
-            }
-            else
-            {
-                ecranTexte.text = prefixeMessage + inputActuel;
-            }
+            ecranTexte.text = prefixeMessage + inputActuel;
         }
-    }
-
-    private void VerifierReponse()
-    {
-        // On vérifie si la réponse tapée est exactement celle attendue (insensible à la casse)
-        if (inputActuel.ToLower() == reponseAttendue.ToLower())
-        {
-            estResolu = true;
-            MettreAJourEcran();
-            AppelerActionReussite();
-        }
-        else if (inputActuel.Length >= reponseAttendue.Length)
-        {
-            // Si le texte a atteint la longueur limite mais est faux, on affiche Erreur
-            // et on efface l'entrée automatiquement après 1.5 seconde
-            ecranTexte.text = prefixeMessage + inputActuel + "\n<color=red>ERREUR</color>";
-            Invoke("EffacerInput", 1.5f);
-        }
-    }
-
-    private void AppelerActionReussite()
-    {
-        // Ajoute ici ce qui doit se passer quand le joueur gagne l'énigme
-        Debug.Log("Enigme réussie ! L'ordinateur est débloqué.");
-        
-        // Exemple pour ouvrir une porte si tu as une référence :
-        // if(porte != null) porte.Ouvrir();
     }
 }
