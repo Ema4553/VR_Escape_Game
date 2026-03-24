@@ -62,10 +62,14 @@ public class MonsterRoomTrigger : MonoBehaviour
         Invoke("RechargerLaPartie", delaisAvantReload);
     }
 
-    private void RechargerLaPartie()
+        private void RechargerLaPartie()
     {
-        Debug.Log("<color=red>🔄 RELOAD lancé !</color>");
-        // Version ultra-robuste : recharge la scène actuelle par son index
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        // Dans tes Build Settings, LabRoom est le numéro 0.
+        // C'est l'ordre le plus puissant que Unity ne peut pas ignorer.
+        Debug.Log("<color=red>🔄 RELOAD INDEX 0 (LabRoom) lancé !</color>");
+        
+        // On force le chargement du premier niveau de la liste
+        UnityEngine.SceneManagement.SceneManager.LoadScene(0);
     }
+
 }
